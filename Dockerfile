@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:7.4-fpm AS base
 
 # Arguments defined in docker-compose.yml
 ARG user
@@ -12,23 +12,27 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    unzip && apt-get clean && rm -rf /var/lib/apt/lists/* && \ 
+    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd && \
+    useradd -G www-data,root -u $uid -d /home/$user $user && \
+    mkdir -p /home/$user/.composer && \
+    chown -R $user:$user /home/$user
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+FROM composer:2.3.7 AS build
 
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
+COPY app/composer.json .
+COPY app/composer.lock .
+RUN composer install --no-dev --no-scripts --ignore-platform-reqs
+
+RUN composer dumpautoload --optimize
+
 
 # Set working directory
-WORKDIR /var/www
+FROM base AS final
 
-USER $user
+COPY ./app /var/www
+COPY --from=build /app/vendor /var/www/vendor

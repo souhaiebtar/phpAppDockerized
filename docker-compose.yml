@@ -7,12 +7,10 @@ services:
         uid: 1000
       context: ./
       dockerfile: Dockerfile
-    image: webapp
+      target: final
     container_name: webapp-app
     restart: unless-stopped
-    working_dir: /var/www/
-    volumes:
-      - ./app/:/var/www
+    working_dir: /var/www
     networks:
       - webapp
 
@@ -27,6 +25,8 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
+    ports:
+      - "3366:3306"
     volumes:
       - ./docker-compose/mysql:/docker-entrypoint-initdb.d
     networks:
@@ -39,7 +39,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./app/:/var/www
+      - ./app/public:/var/www/public
       - ./docker-compose/nginx:/etc/nginx/conf.d
     networks:
       - webapp
