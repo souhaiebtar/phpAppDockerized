@@ -19,7 +19,11 @@ RUN apt-get update && apt-get install -y \
     chown -R $user:$user /home/$user
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl opcache
+
+# setup php.ini
+RUN ln -s /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+COPY docker-compose/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Get latest Composer
 FROM composer:2.3.7 AS build
