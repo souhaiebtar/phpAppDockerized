@@ -3,7 +3,7 @@ services:
   app:
     build:
       args:
-        user: mosbah
+        user: souhaiebtar
         uid: 1000
       context: ./
       dockerfile: Dockerfile
@@ -25,8 +25,6 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
-    ports:
-      - "3366:3306"
     volumes:
       - ./docker-compose/mysql:/docker-entrypoint-initdb.d
     networks:
