@@ -43,6 +43,7 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      PMA_ABSOLUTE_URI: "http://localhost:8000/phpmyadmin"
     networks:
       - webapp
 
